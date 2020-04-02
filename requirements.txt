@@ -1,5 +1,5 @@
 openshift
 jupyterhub-kubespawner==0.11.1
-git+https://github.com/mroman-redhat/jupyterhub-singleuser-profiles.git@07ca98bafaddf7c1611b1ce84f60293444bf8aeb
+git+https://github.com/mroman-redhat/jupyterhub-singleuser-profiles.git@f45d4009ee889b5f7e1f436a9da89e68238b3b52
 git+https://github.com/vpavlin/jupyter-publish-extension.git@7cbf34e494fd9a0a79e9cd9a8c1d48a6775b9f49
 git+https://github.com/vpavlin/oauthenticator.git
