@@ -2,18 +2,20 @@
 
 /usr/libexec/s2i/assemble
 
-git clone https://github.com/opendatahub.io/jupyterhub-singleuser-profiles.git /tmp/src/jsp
+git clone -b bug/dropdown-closing https://github.com/mroman-redhat/jupyterhub-singleuser-profiles.git /tmp/src/jsp
 
-cd /tmp/src/jsp/ui
+cd /tmp/src/jsp/jupyterhub_singleuser_profiles_ui
 
 npm install
 npm run build
 
 cd /opt/app-root/share/jupyterhub/static/
 mkdir jsp-ui
-cp -a /tmp/src/jsp/ui/build/. /opt/app-root/share/jupyterhub/static/jsp-ui
+cp -a /tmp/src/jsp/jupyterhub_singleuser_profiles_ui/build/. /opt/app-root/share/jupyterhub/static/jsp-ui
 
-cd /tmp/src/jsp/ui/templates/
-yes | cp -rf spawn.html page.html /opt/app-root/share/jupyterhub/templates/
-cd /tmp/src/jsp/ui/styles/
+cd /tmp/src/jsp/jupyterhub_singleuser_profiles_ui/templates/
+yes | cp -rf spawn.html /opt/app-root/share/jupyterhub/templates/
+cd /tmp/src/jsp/jupyterhub_singleuser_profiles_ui/styles/
 yes | cp -rf style.less /opt/app-root/share/jupyterhub/static/less
+
+fix-permissions /opt/app-root
