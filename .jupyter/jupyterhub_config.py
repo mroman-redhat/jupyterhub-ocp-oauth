@@ -37,6 +37,9 @@ c.JupyterHub.services = [
                                 'environment': jsp_api_dict
                             }
                         ]
+
+DEFAULT_MOUNT_PATH = '/opt/app-root/src'
+
 c.KubeSpawner.singleuser_extra_containers = [
         {
             "name": "nbviewer",
@@ -79,7 +82,7 @@ c.KubeSpawner.singleuser_extra_containers = [
             ],
         "volumeMounts": [
             {
-                "mountPath": "/opt/app-root/src",
+                "mountPath": DEFAULT_MOUNT_PATH,
                 "name": "data"
             }
         ]
@@ -121,6 +124,13 @@ with open(os.path.join(service_account_path, 'token')) as fp:
     client_secret = fp.read().strip()
 
 c.OpenShiftOAuthenticator.client_secret = client_secret
+
+allowed_groups = os.environ.get('JUPYTERHUB_ALLOWED_GROUPS')
+admin_groups = os.environ.get('JUPYTERHUB_ADMIN_GROUPS')
+if allowed_groups:
+    c.OpenShiftOAuthenticator.allowed_groups = set(allowed_groups.split(','))
+if admin_groups:
+    c.OpenShiftOAuthenticator.admin_groups = set(admin_groups.split(','))
 
 # Work out hostname for the exposed route of the JupyterHub server. This
 # is tricky as we need to use the REST API to query it.
@@ -231,7 +241,7 @@ class OpenShiftSpawner(KubeSpawner):
 def apply_pod_profile(spawner, pod):
   spawner.single_user_profiles.load_profiles(username=spawner.user.name)
   profile = spawner.single_user_profiles.get_merged_profile(spawner.image, user=spawner.user.name, size=spawner.deployment_size)
-  return SingleuserProfiles.apply_pod_profile(spawner, pod, profile)
+  return SingleuserProfiles.apply_pod_profile(spawner, pod, profile, DEFAULT_MOUNT_PATH)
 
 def setup_environment(spawner):
     spawner.single_user_profiles.load_profiles(username=spawner.user.name)
@@ -251,7 +261,7 @@ c.OpenShiftSpawner.storage_pvc_ensure = True
 c.KubeSpawner.storage_capacity = os.environ.get('SINGLEUSER_PVC_SIZE', '2Gi')
 c.KubeSpawner.pvc_name_template = '%s-nb-{username}-pvc' % os.environ['JUPYTERHUB_SERVICE_NAME']
 c.KubeSpawner.volumes = [dict(name='data', persistentVolumeClaim=dict(claimName=c.KubeSpawner.pvc_name_template))]
-c.KubeSpawner.volume_mounts = [dict(name='data', mountPath='/opt/app-root/src')]
+c.KubeSpawner.volume_mounts = [dict(name='data', mountPath=DEFAULT_MOUNT_PATH)]
 c.KubeSpawner.user_storage_class = os.environ.get("JUPYTERHUB_STORAGE_CLASS", c.KubeSpawner.user_storage_class)
 admin_users = os.environ.get('JUPYTERHUB_ADMIN_USERS')
 if admin_users:
